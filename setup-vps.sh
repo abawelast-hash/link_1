@@ -122,11 +122,18 @@ echo "  ✓ Nginx configured for $DOMAIN"
 echo "▸ [8/8] Cloning project and deploying..."
 mkdir -p /var/www
 if [ -d "$PROJECT_DIR/.git" ]; then
-    cd "$PROJECT_DIR" && git pull origin main
+    echo "  ✓ Repo already cloned — pulling latest..."
+    cd "$PROJECT_DIR" && git fetch origin && git reset --hard origin/main
+elif [ -d "$PROJECT_DIR" ]; then
+    echo "  ✓ Directory exists but no git — removing and cloning fresh..."
+    rm -rf "$PROJECT_DIR"
+    git clone "$REPO_URL" "$PROJECT_DIR"
 else
     git clone "$REPO_URL" "$PROJECT_DIR"
 fi
 cd "$PROJECT_DIR"
+# Strip Windows CR from all shell scripts (safety)
+find "$PROJECT_DIR" -name "*.sh" -exec sed -i 's/\r//' {} \;
 chmod +x deploy.sh
 bash deploy.sh
 echo "  ✓ Project deployed"
