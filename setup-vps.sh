@@ -42,7 +42,7 @@ apt-get update -qq
 apt-get install -y -qq \
     php8.3 php8.3-fpm php8.3-mysql php8.3-mbstring php8.3-xml \
     php8.3-bcmath php8.3-curl php8.3-zip php8.3-gd php8.3-intl \
-    php8.3-redis php8.3-tokenizer php8.3-fileinfo php8.3-openssl \
+    php8.3-redis php8.3-tokenizer php8.3-fileinfo \
     php8.3-pdo php8.3-pdo-mysql
 echo "  ✓ PHP 8.3 installed"
 
