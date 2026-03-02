@@ -18,3 +18,5 @@ yarn-error.log
 /.idea
 /.nova
 /.vscode
+_deploy_run.ps1
+*.local.ps1
