@@ -23,8 +23,8 @@ echo ""
 # â”€â”€ Step 0: Clone or Pull from GitHub â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if [ ! -d "$PROJECT_DIR/.git" ]; then
     echo "â–¸ [0/7] First deploy â€” cloning from GitHub..."
-    mkdir -p /var/www
-    git clone "$REPO_URL" "$PROJECT_DIR"
+    mkdir -p /var/www    # Remove existing incomplete directory if it exists without .git
+    [ -d "$PROJECT_DIR" ] && rm -rf "$PROJECT_DIR"    git clone "$REPO_URL" "$PROJECT_DIR"
     echo "  âœ“ Repository cloned"
 else
     echo "â–¸ [0/7] Pulling latest from GitHub..."
