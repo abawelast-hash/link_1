@@ -1,0 +1,21 @@
+<x-filament-panels::page>
+    <div class="mx-auto max-w-2xl space-y-6">
+        @if($this->submittedToken)
+        <div class="rounded-xl border border-emerald-500/40 bg-emerald-900/20 p-5 text-white">
+            <p class="font-bold text-emerald-400"> ?? ????? ?????? ?????</p>
+            <p class="mt-2 text-sm text-gray-300">???? ??? ???????? ?????? ?????? ??? ???? ?????:</p>
+            <p class="mt-2 font-mono text-2xl text-[#D4A841]">{{ $this->submittedToken }}</p>
+        </div>
+        @endif
+        <div class="rounded-2xl border border-[#D4A841]/30 bg-[#1E293B] p-6 text-white shadow-xl">
+            <h2 class="mb-1 text-lg font-bold text-[#D4A841]"> ????? ???? ???</h2>
+            <p class="mb-4 text-sm text-gray-400">????? ?????. ????? ??????? ??????.</p>
+            <form wire:submit.prevent="submit">
+                {{ $this->form }}
+                <button type="submit" class="mt-6 w-full rounded-xl bg-[#D4A841] py-3 font-bold text-[#0F172A] hover:bg-[#F5E4A3]">
+                    ????? ?????? ????? ????
+                </button>
+            </form>
+        </div>
+    </div>
+</x-filament-panels::page>

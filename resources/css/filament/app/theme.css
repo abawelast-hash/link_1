@@ -1,0 +1,80 @@
+/**
+ * صرح الإتقان — Navy + Gold Theme v3.0
+ * بوابة الموظف (App Panel / PWA)
+ */
+
+@import '/vendor/filament/filament/resources/css/app.css';
+
+:root {
+    --sarh-gold:         #D4A841;
+    --sarh-gold-light:   #F5E4A3;
+    --sarh-gold-dark:    #967520;
+    --sarh-navy:         #0F172A;
+    --sarh-navy-light:   #1E293B;
+    --sarh-navy-lighter: #334155;
+}
+
+html, body, .fi-body {
+    background-color: var(--sarh-navy) !important;
+    color: #E2E8F0 !important;
+    direction: rtl;
+    font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+/* ── Sidebar ── */
+.fi-sidebar {
+    background-color: var(--sarh-navy-light) !important;
+    border-left: 2px solid var(--sarh-gold) !important;
+}
+.fi-sidebar-nav-item a { color: #CBD5E1 !important; border-radius: 0.5rem; transition: all 0.2s; }
+.fi-sidebar-nav-item a:hover,
+.fi-sidebar-nav-item a[aria-current="page"] {
+    background-color: var(--sarh-gold) !important;
+    color: var(--sarh-navy) !important;
+    font-weight: 700;
+    box-shadow: 0 0 12px rgba(212,168,65,0.4);
+}
+.fi-brand-name { color: var(--sarh-gold) !important; font-weight: 900 !important; }
+
+/* ── Cards ── */
+.fi-card, .fi-section { background-color: var(--sarh-navy-light) !important; border-color: rgba(212,168,65,0.2) !important; border-radius: 1rem !important; }
+.fi-section-header-heading { color: var(--sarh-gold) !important; font-weight: 600; }
+
+/* ── Primary Button ── */
+.fi-btn-primary {
+    background: linear-gradient(135deg, var(--sarh-gold), var(--sarh-gold-dark)) !important;
+    color: var(--sarh-navy) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 15px rgba(212,168,65,0.35) !important;
+}
+.fi-btn-primary:hover { box-shadow: 0 6px 20px rgba(212,168,65,0.55) !important; transform: translateY(-1px) !important; }
+
+/* ── Inputs ── */
+.fi-input, .fi-select-input, .fi-textarea {
+    background-color: var(--sarh-navy) !important;
+    border-color: var(--sarh-navy-lighter) !important;
+    color: #E2E8F0 !important;
+}
+.fi-input:focus { border-color: var(--sarh-gold) !important; box-shadow: 0 0 0 3px rgba(212,168,65,0.2) !important; }
+
+/* ── Login ── */
+.fi-simple-layout {
+    background: radial-gradient(ellipse at center, var(--sarh-navy-light) 0%, var(--sarh-navy) 100%) !important;
+}
+.fi-simple-layout .fi-card {
+    background: rgba(30,41,59,0.9) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(212,168,65,0.3) !important;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5) !important;
+}
+
+/* ── PWA Mobile Friendly ── */
+@media (max-width: 768px) {
+    .fi-sidebar { width: 100% !important; }
+    .fi-main { padding: 1rem !important; }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--sarh-navy); }
+::-webkit-scrollbar-thumb { background: var(--sarh-gold-dark); border-radius: 3px; }
