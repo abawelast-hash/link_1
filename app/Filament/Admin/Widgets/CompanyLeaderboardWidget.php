@@ -9,7 +9,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class CompanyLeaderboardWidget extends BaseWidget
 {
     protected static ?int    $sort    = 3;
-    protected int | string   $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
     protected static ?string $heading = '🏅 لوحة المنافسة — ترتيب الفروع';
 
     public function table(Table $table): Table

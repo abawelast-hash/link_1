@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 class AttendanceTodayWidget extends BaseWidget
 {
     protected static ?int    $sort    = 2;
-    protected int | string   $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
     protected static ?string $heading = 'سجل الحضور اليوم';
 
     public function table(Table $table): Table
