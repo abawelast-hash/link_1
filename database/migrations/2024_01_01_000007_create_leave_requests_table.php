@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained('branches')->cascadeOnDelete();
             $table->date('start_date');
             $table->date('end_date');
-            $table->unsignedSmallInteger('days_count')->virtualAs('DATEDIFF(end_date, start_date) + 1');
+            $table->unsignedSmallInteger('days_count')->default(0);
             $table->enum('type', ['annual', 'sick', 'emergency', 'unpaid', 'other'])->default('annual');
             $table->text('reason');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
