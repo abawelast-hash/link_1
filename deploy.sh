@@ -1,196 +1,125 @@
-#!/bin/bash
+﻿#!/bin/bash
 ###############################################################
-# صرح الإتقان v3.0 — One-Command Deploy Script
+# ØµØ±Ø­ Ø§Ù„Ø¥ØªÙ‚Ø§Ù† v3.0 â€” One-Command Deploy Script
 # Usage: bash deploy.sh          (first time + updates)
 # Repo:  https://github.com/abawelast-hash/link_1.git
-# Target: Hostinger (sarh.online)
-# Path:   /home/u850419603/sarh
-# Domain: /home/u850419603/domains/sarh.online/public_html
-#
-# Constitution: Zero-Patch Policy — No manual DB changes
+# Target: Hostinger VPS â€” Ubuntu 24.04 LTS
+# Path:   /var/www/sarh
+# Domain: sarh.shop
 ###############################################################
 
 set -e
 
-PROJECT_DIR="/home/u850419603/sarh"
-DOMAIN_PUBLIC="/home/u850419603/domains/sarh.online/public_html"
+PROJECT_DIR="/var/www/sarh"
 REPO_URL="https://github.com/abawelast-hash/link_1.git"
 
 echo ""
-echo "╔═══════════════════════════════════════════╗"
-echo "║   صرح الإتقان v3.0 — Production Deploy  ║"
-echo "║   sarh.online                             ║"
-echo "╚═══════════════════════════════════════════╝"
+echo "â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—"
+echo "â•‘   ØµØ±Ø­ Ø§Ù„Ø¥ØªÙ‚Ø§Ù† v3.0 â€” Production Deploy  â•‘"
+echo "â•‘   sarh.shop                             â•‘"
+echo "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•"
 echo ""
 
-# ── Step 0: Clone or Pull from GitHub ────────────────────
+# â”€â”€ Step 0: Clone or Pull from GitHub â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if [ ! -d "$PROJECT_DIR/.git" ]; then
-    echo "▸ [0/8] First deploy — cloning from GitHub..."
+    echo "â–¸ [0/7] First deploy â€” cloning from GitHub..."
+    mkdir -p /var/www
     git clone "$REPO_URL" "$PROJECT_DIR"
-    echo "  ✓ Repository cloned"
+    echo "  âœ“ Repository cloned"
 else
-    echo "▸ [0/8] Pulling latest from GitHub..."
+    echo "â–¸ [0/7] Pulling latest from GitHub..."
     cd "$PROJECT_DIR"
     git fetch origin
     git reset --hard origin/main
-    echo "  ✓ Code updated to latest main"
+    echo "  âœ“ Code updated to latest main"
 fi
 echo ""
 
 cd "$PROJECT_DIR"
 
-# ── Step 1: Composer Install ─────────────────────────────
-echo "▸ [1/8] Installing PHP dependencies..."
-COMPOSER_MEMORY_LIMIT=-1 composer install --optimize-autoloader --no-interaction
-echo "  ✓ Composer dependencies installed"
+# â”€â”€ Step 1: Composer Install â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+echo "â–¸ [1/7] Installing PHP dependencies..."
+COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction
+echo "  âœ“ Composer dependencies installed"
 echo ""
 
-# ── Step 2: Copy Production .env ─────────────────────────
+# â”€â”€ Step 2: Setup .env â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if [ ! -f .env ]; then
-    echo "▸ [2/8] Setting up environment file..."
+    echo "â–¸ [2/7] Setting up environment file..."
     cp .env.production .env
     php artisan key:generate --force
-    echo "  ✓ Environment configured & APP_KEY generated"
+    echo "  âœ“ Environment configured & APP_KEY generated"
 else
-    echo "▸ [2/8] .env exists — ensuring APP_KEY is set..."
+    echo "â–¸ [2/7] .env exists â€” ensuring APP_KEY is set..."
     if ! grep -q "^APP_KEY=base64:" .env; then
         php artisan key:generate --force
-        echo "  ✓ APP_KEY generated"
+        echo "  âœ“ APP_KEY generated"
     else
-        echo "  ✓ APP_KEY already set"
+        echo "  âœ“ APP_KEY already set"
     fi
 fi
-echo ""
 
-# ── Step 2.5: Enforce Hardened Session Protocol ──────────
-# Session config MUST NOT be overwritten by git pull.
-# Force file-based sessions, no encryption, null domain, SameSite=lax.
-echo "▸ [2.5] Enforcing Hardened Session Protocol..."
+# Enforce session settings
 sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' .env
 sed -i 's/^SESSION_ENCRYPT=.*/SESSION_ENCRYPT=false/' .env
 sed -i 's/^SESSION_DOMAIN=.*/SESSION_DOMAIN=null/' .env
-sed -i 's/^SESSION_SAME_SITE=.*/SESSION_SAME_SITE=lax/' .env
-
-# Ensure keys exist if missing
-grep -q "^SESSION_DRIVER="       .env || echo "SESSION_DRIVER=file"          >> .env
-grep -q "^SESSION_ENCRYPT="      .env || echo "SESSION_ENCRYPT=false"        >> .env
-grep -q "^SESSION_DOMAIN="       .env || echo "SESSION_DOMAIN=null"           >> .env
-grep -q "^SESSION_SECURE_COOKIE=" .env || echo "SESSION_SECURE_COOKIE=true"  >> .env
-grep -q "^SESSION_LIFETIME="     .env || echo "SESSION_LIFETIME=120"         >> .env
-grep -q "^SESSION_SAME_SITE="    .env || echo "SESSION_SAME_SITE=lax"        >> .env
-
-sed -i 's/^SESSION_SECURE_COOKIE=.*/SESSION_SECURE_COOKIE=true/' .env
-echo "  ✓ SESSION_DRIVER=file"
-echo "  ✓ SESSION_ENCRYPT=false"
-echo "  ✓ SESSION_DOMAIN=null (auto-detect)"
-echo "  ✓ SESSION_SECURE_COOKIE=true (HTTPS)"
+grep -q "^SESSION_DRIVER="     .env || echo "SESSION_DRIVER=file"         >> .env
+grep -q "^SESSION_SECURE_COOKIE=" .env || echo "SESSION_SECURE_COOKIE=true" >> .env
 echo ""
 
-# ── Step 3: Migrate + Seed ────────────────────────────────
-echo "▸ [3/8] Running migrations & seeding..."
-php artisan migrate --force --seed
-echo "  ✓ Database schema created with seed data"
+# â”€â”€ Step 3: Migrate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+echo "â–¸ [3/7] Running migrations..."
+php artisan migrate --force
+echo "  âœ“ Database schema up to date"
 echo ""
 
-# ── Step 4: Build Frontend Assets (Vite) ─────────────────
-echo "▸ [4/8] Building frontend assets..."
+# â”€â”€ Step 4: Build Frontend Assets (Vite) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+echo "â–¸ [4/7] Building frontend assets..."
 if command -v npm &> /dev/null; then
     npm install --no-audit --no-fund
     npm run build
-    echo "  ✓ Vite assets compiled to public/build/"
+    echo "  âœ“ Vite assets compiled to public/build/"
 else
-    echo "  ⚠ npm not found — using pre-built assets from git"
-    echo "    → ارفع public/build/ عبر SFTP إذا لزم الأمر"
+    echo "  âš  npm not found â€” skipping"
 fi
 echo ""
 
-# ── Step 5: Storage Symlink ───────────────────────────────
-echo "▸ [5/8] Creating storage symlink..."
+# â”€â”€ Step 5: Storage Symlink â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+echo "â–¸ [5/7] Creating storage symlink..."
 mkdir -p "$PROJECT_DIR/storage/app/public"
-if [ -L "$PROJECT_DIR/public/storage" ]; then
-    echo "  ✓ Symlink already exists"
-else
-    ln -sf "$PROJECT_DIR/storage/app/public" "$PROJECT_DIR/public/storage"
-    echo "  ✓ storage symlink created"
-fi
+php artisan storage:link --force
+echo "  âœ“ storage symlink created"
 echo ""
 
-# ── Step 6: Deploy to domains/sarh.online/public_html ────
-echo "▸ [6/8] Deploying to domain public_html..."
-mkdir -p "$DOMAIN_PUBLIC"
-
-# Copy all public assets (JS, CSS, build, images, etc.)
-cp -r "$PROJECT_DIR/public/"* "$DOMAIN_PUBLIC/"
-cp "$PROJECT_DIR/public/.htaccess" "$DOMAIN_PUBLIC/" 2>/dev/null || true
-
-# *** CRITICAL: Overwrite index.php with bridge (absolute paths) ***
-# The cp above copies the default Laravel index.php with __DIR__ paths
-# which point to domains/sarh.online/ (wrong). We MUST overwrite it.
-cat > "$DOMAIN_PUBLIC/index.php" << 'BRIDGE'
-<?php
-
-use Illuminate\Http\Request;
-
-define('LARAVEL_START', microtime(true));
-
-// Maintenance mode
-if (file_exists($maintenance = '/home/u850419603/sarh/storage/framework/maintenance.php')) {
-    require $maintenance;
-}
-
-// Autoloader — absolute path to project
-require '/home/u850419603/sarh/vendor/autoload.php';
-
-// Bootstrap & handle request — absolute path to project
-(require_once '/home/u850419603/sarh/bootstrap/app.php')
-    ->handleRequest(Request::capture());
-BRIDGE
-
-# Storage link in domain public_html
-ln -sf "$PROJECT_DIR/storage/app/public" "$DOMAIN_PUBLIC/storage"
-
-chmod 755 "$DOMAIN_PUBLIC"
-chmod 644 "$DOMAIN_PUBLIC/index.php"
-chmod 644 "$DOMAIN_PUBLIC/.htaccess" 2>/dev/null || true
-
-echo "  ✓ Files deployed to $DOMAIN_PUBLIC"
-echo "  ✓ Bridge index.php with absolute paths created"
-echo ""
-
-# ── Step 7: Clear Old Cache + Stale Sessions ─────────────
-echo "▸ [7/8] Clearing old cache + stale sessions..."
+# â”€â”€ Step 6: Optimize for Production â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+echo "â–¸ [6/7] Optimizing for production..."
 php artisan optimize:clear
-rm -f storage/framework/sessions/* 2>/dev/null || true
-echo "  ✓ Old cache cleared"
-echo "  ✓ Stale session files purged"
-echo ""
-
-# ── Step 8: Optimize for Production ──────────────────────
-# NOTE: route:cache FORBIDDEN — breaks Filament v3 closure-based routes
-# NOTE: view:cache SKIPPED — causes Blade errors on shared hosting
-echo "▸ [8/8] Optimizing for production..."
 php artisan config:cache
 php artisan event:cache
 php artisan filament:cache-components
-echo "  ✓ Config, events, Filament components cached"
-echo "  ✓ route:cache SKIPPED (Filament v3 incompatible)"
-echo "  ✓ view:cache SKIPPED (shared hosting safe)"
+echo "  âœ“ Config, events, Filament components cached"
 echo ""
 
-# ── Permissions Fix ───────────────────────────────────────
-echo "▸ Fixing permissions..."
-chmod -R 775 storage bootstrap/cache
-echo "  ✓ Permissions set"
+# â”€â”€ Step 7: Permissions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+echo "â–¸ [7/7] Fixing permissions..."
+chown -R www-data:www-data "$PROJECT_DIR" 2>/dev/null || true
+chmod -R 755 "$PROJECT_DIR"
+chmod -R 775 "$PROJECT_DIR/storage" "$PROJECT_DIR/bootstrap/cache"
+echo "  âœ“ Permissions set"
 echo ""
 
-# ── Done ──────────────────────────────────────────────────
-echo "╔═══════════════════════════════════════════╗"
-echo "║   ✅ DEPLOYMENT COMPLETE                  ║"
-echo "║                                           ║"
-echo "║   URL:   https://sarh.online              ║"
-echo "║   Admin: https://sarh.online/admin        ║"
-echo "║                                           ║"
-echo "║   Next: Run 'php artisan sarh:install'    ║"
-echo "║   to create the Super Admin (Level 10)    ║"
-echo "╚═══════════════════════════════════════════╝"
+# â”€â”€ Restart Queue Worker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+php artisan queue:restart 2>/dev/null || true
+systemctl restart sarh-queue 2>/dev/null || true
+
+# â”€â”€ Done â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+echo "â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—"
+echo "â•‘   âœ… DEPLOYMENT COMPLETE                  â•‘"
+echo "â•‘                                           â•‘"
+echo "â•‘   URL:   https://sarh.shop                â•‘"
+echo "â•‘   Admin: https://sarh.shop/admin          â•‘"
+echo "â•‘                                           â•‘"
+echo "â•‘   Next: Run 'php artisan sarh:install'    â•‘"
+echo "â•‘   to create the Super Admin (Level 10)    â•‘"
+echo "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•"
 echo ""
